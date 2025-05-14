@@ -1,6 +1,4 @@
 const Baby = require('../models/baby');
-const fs = require('fs');
-const pdf = require('pdf-parse');
 
 
 // Create a new baby with milestones
