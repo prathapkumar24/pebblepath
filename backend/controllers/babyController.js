@@ -246,28 +246,3 @@ exports.deleteMilestone = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.createMilestones = async (req, res, next) => {
-  /*const path = require("path");
-  const filePath = path.join(__dirname, "../files", "milestones-1.pdf");
-  fs.readFile(filePath, (err, pdfBuffer) => {
-    if (err) {
-      console.error("Error reading file:", err);
-      return;
-    }
-  
-    new PdfReader().parseBuffer(pdfBuffer, (err, item) => {
-      if (err) console.error("Error parsing PDF:", err);
-      else if (!item) console.log("End of file");
-      else if (item.text) console.log(item.text);
-    });
-  });*/
-  
-  const dataBuffer = fs.readFileSync('files/milestones-1.pdf');
-
-  // Parse and extract text
-  pdf(dataBuffer).then(function(data) {
-      console.log(data.text); // Extracted text from the PDF
-  });
-
-}
