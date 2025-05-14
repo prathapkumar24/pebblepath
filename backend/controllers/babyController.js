@@ -1,0 +1,273 @@
+const Baby = require('../models/baby');
+const fs = require('fs');
+const pdf = require('pdf-parse');
+
+
+// Create a new baby with milestones
+exports.createBaby = async (req, res, next) => {
+  try {
+    const babyData = req.body;
+    
+    // Create and save new baby
+    const baby = new Baby(babyData);
+    const savedBaby = await baby.save();
+    
+    res.status(201).json({
+      success: true,
+      data: savedBaby
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(val => val.message)
+      });
+    }
+    next(error);
+  }
+};
+
+// Get all babies
+exports.getAllBabies = async (req, res, next) => {
+  try {
+    const babies = await Baby.find().select('-__v');
+    
+    res.status(200).json({
+      success: true,
+      count: babies.length,
+      data: babies
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get baby by ID
+exports.getBabyById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    const baby = await Baby.findOne({ id }).select('-__v');
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 1`
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      data: baby
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update baby by ID
+exports.updateBaby = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    const baby = await Baby.findOne({ id });
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 2`
+      });
+    }
+    
+    // Update baby properties
+    Object.keys(updateData).forEach(key => {
+      if (key !== 'id' && key !== 'createdAt') { // Prevent updating these fields
+        baby[key] = updateData[key];
+      }
+    });
+    
+    const updatedBaby = await baby.save();
+    
+    res.status(200).json({
+      success: true,
+      data: updatedBaby
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(val => val.message)
+      });
+    }
+    next(error);
+  }
+};
+
+// Delete baby by ID
+exports.deleteBaby = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    
+    const baby = await Baby.findOneAndDelete({ id });
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 3`
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: `Baby with ID ${id} successfully deleted`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Add a milestone to a baby
+exports.addMilestone = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const milestone = req.body;
+    
+    const baby = await Baby.findOne({ id });
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 4`
+      });
+    }
+    
+    baby.milestones.push(milestone);
+    const updatedBaby = await baby.save();
+    
+    res.status(200).json({
+      success: true,
+      data: updatedBaby.milestones[updatedBaby.milestones.length - 1]
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(val => val.message)
+      });
+    }
+    next(error);
+  }
+};
+
+// Update a milestone
+exports.updateMilestone = async (req, res, next) => {
+  try {
+    const { id, milestoneId } = req.params;
+    const milestoneData = req.body;
+    
+    const baby = await Baby.findOne({ id });
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 5`
+      });
+    }
+    
+    const milestoneIndex = baby.milestones.findIndex(m => m.id === milestoneId);
+    
+    if (milestoneIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Milestone with ID ${milestoneId} not found for this baby`
+      });
+    }
+    
+    // Update milestone
+    Object.keys(milestoneData).forEach(key => {
+      if (key !== 'id') {
+        baby.milestones[milestoneIndex][key] = milestoneData[key];
+      }
+    });
+    
+    const updatedBaby = await baby.save();
+    
+    res.status(200).json({
+      success: true,
+      data: updatedBaby.milestones[milestoneIndex]
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(val => val.message)
+      });
+    }
+    next(error);
+  }
+};
+
+// Delete a milestone
+exports.deleteMilestone = async (req, res, next) => {
+  try {
+    const { id, milestoneId } = req.params;
+    
+    const baby = await Baby.findOne({ id });
+    
+    if (!baby) {
+      return res.status(404).json({
+        success: false,
+        message: `Baby with ID ${id} not found 6`
+      });
+    }
+    
+    const milestoneIndex = baby.milestones.findIndex(m => m.id === milestoneId);
+    
+    if (milestoneIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: `Milestone with ID ${milestoneId} not found for this baby`
+      });
+    }
+    
+    baby.milestones.splice(milestoneIndex, 1);
+    await baby.save();
+    
+    res.status(200).json({
+      success: true,
+      message: `Milestone with ID ${milestoneId} successfully deleted`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createMilestones = async (req, res, next) => {
+  /*const path = require("path");
+  const filePath = path.join(__dirname, "../files", "milestones-1.pdf");
+  fs.readFile(filePath, (err, pdfBuffer) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return;
+    }
+  
+    new PdfReader().parseBuffer(pdfBuffer, (err, item) => {
+      if (err) console.error("Error parsing PDF:", err);
+      else if (!item) console.log("End of file");
+      else if (item.text) console.log(item.text);
+    });
+  });*/
+  
+  const dataBuffer = fs.readFileSync('files/milestones-1.pdf');
+
+  // Parse and extract text
+  pdf(dataBuffer).then(function(data) {
+      console.log(data.text); // Extracted text from the PDF
+  });
+
+}
