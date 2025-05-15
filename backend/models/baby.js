@@ -79,9 +79,9 @@ babySchema.pre('save', function(next) {
         const expectedDate = new Date(birthDate);
         expectedDate.setDate(expectedDate.getDate() + expectedAgeInDays);
         
-        milestone.delayDays = Math.max(0, Math.floor(
+        milestone.delayDays = Math.floor(
           (milestone.completedDate - expectedDate) / (1000 * 60 * 60 * 24)
-        ));
+        );
       }else{
         milestone.completedDate = null;
         milestone.delayDays = 0;
