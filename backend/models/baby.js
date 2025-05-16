@@ -64,7 +64,12 @@ const babySchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  milestones: [milestoneSchema]
+  milestones: [milestoneSchema],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
+  }
 });
 
 // Calculate delay days before saving

@@ -1,19 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const babyController = require("../controllers/babyController");
+const verifyToken = require('../middleware/authMiddleware');
 
 // Baby routes
-//router.get("/createMilestones", babyController.createMilestones);
-router.post("/", babyController.createBaby);
-router.get("/", babyController.getAllBabies);
-router.get("/:id", babyController.getBabyById);
-router.put("/:id", babyController.updateBaby);
-router.delete("/:id", babyController.deleteBaby);
+router.post("/", verifyToken, babyController.createBaby);
+router.get("/", verifyToken, babyController.getAllBabies);
+router.get("/:id", verifyToken, babyController.getBabyById);
+router.put("/:id", verifyToken, babyController.updateBaby);
+router.delete("/:id", verifyToken, babyController.deleteBaby);
 
 // Milestone routes
-router.post("/:id/milestones", babyController.addMilestone);
-router.put("/:id/milestones/:milestoneId", babyController.updateMilestone);
-router.delete("/:id/milestones/:milestoneId", babyController.deleteMilestone);
+router.post("/:id/milestones", verifyToken, babyController.addMilestone);
+router.put("/:id/milestones/:milestoneId", verifyToken, babyController.updateMilestone);
+router.delete("/:id/milestones/:milestoneId", verifyToken, babyController.deleteMilestone);
 
 
 

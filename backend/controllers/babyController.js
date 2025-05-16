@@ -7,6 +7,7 @@ exports.createBaby = async (req, res, next) => {
     const babyData = req.body;
     
     // Create and save new baby
+    babyData.userId = req.user.id;
     const baby = new Baby(babyData);
     const savedBaby = await baby.save();
     
@@ -29,7 +30,7 @@ exports.createBaby = async (req, res, next) => {
 // Get all babies
 exports.getAllBabies = async (req, res, next) => {
   try {
-    const babies = await Baby.find().select('-__v');
+    const babies = await Baby.find({ userId: req.user.id }).select('-__v');
     
     res.status(200).json({
       success: true,
@@ -46,7 +47,7 @@ exports.getBabyById = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const baby = await Baby.findOne({ id }).select('-__v');
+    const baby = await Baby.findOne({ id, userId: req.user.id }).select('-__v');
     
     if (!baby) {
       return res.status(404).json({
@@ -70,7 +71,7 @@ exports.updateBaby = async (req, res, next) => {
     const { id } = req.params;
     const updateData = req.body;
     
-    const baby = await Baby.findOne({ id });
+    const baby = await Baby.findOne({ id, userId: req.user.id });
     
     if (!baby) {
       return res.status(404).json({
@@ -109,7 +110,7 @@ exports.deleteBaby = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const baby = await Baby.findOneAndDelete({ id });
+    const baby = await Baby.findOneAndDelete({ id, userId: req.user.id });
     
     if (!baby) {
       return res.status(404).json({
@@ -133,7 +134,7 @@ exports.addMilestone = async (req, res, next) => {
     const { id } = req.params;
     const milestone = req.body;
     
-    const baby = await Baby.findOne({ id });
+    const baby = await Baby.findOne({ id, userId: req.user.id });
     
     if (!baby) {
       return res.status(404).json({
@@ -167,7 +168,7 @@ exports.updateMilestone = async (req, res, next) => {
     const { id, milestoneId } = req.params;
     const milestoneData = req.body;
     
-    const baby = await Baby.findOne({ id });
+    const baby = await Baby.findOne({ id, userId: req.user.id });
     
     if (!baby) {
       return res.status(404).json({
@@ -215,7 +216,7 @@ exports.deleteMilestone = async (req, res, next) => {
   try {
     const { id, milestoneId } = req.params;
     
-    const baby = await Baby.findOne({ id });
+    const baby = await Baby.findOne({ id, userId: req.user.id });
     
     if (!baby) {
       return res.status(404).json({

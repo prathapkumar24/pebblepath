@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const babyRoutes = require('./routes/babyRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Initialize Express app
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/babies', babyRoutes);
+app.use('/auth', authRoutes);
 
 // Root route
 app.get('/', (req, res) => {
