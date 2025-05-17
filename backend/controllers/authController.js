@@ -46,7 +46,7 @@ exports.loginUser = async (req, res, next) => {
 
     const user = await User.findOne({ mobile });
     if (!user) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: 'Invalid mobile or password',
       });
@@ -54,7 +54,7 @@ exports.loginUser = async (req, res, next) => {
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: 'Invalid password',
       });
