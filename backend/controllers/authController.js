@@ -19,7 +19,10 @@ exports.registerUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: Object.values(error.errors).map((val) => val.message),
+        errors: Object.values(error.errors).reduce((acc, val) => {
+          acc[val.path] = val.message;
+          return acc;
+        }, {}),
       });
     }
     if (error.code === 11000) {
@@ -41,6 +44,10 @@ exports.loginUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Mobile and password are required',
+        errors: {
+          mobile: !mobile ? 'Mobile is required' : undefined,
+          password: !password ? 'Password is required' : undefined,
+        },
       });
     }
 
@@ -49,6 +56,9 @@ exports.loginUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Invalid mobile or password',
+        errors: {
+          mobile: 'Invalid Mobile number',
+        },
       });
     }
 
@@ -57,6 +67,9 @@ exports.loginUser = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Invalid password',
+        errors: {
+          password: 'Invalid Password',
+        },
       });
     }
 
